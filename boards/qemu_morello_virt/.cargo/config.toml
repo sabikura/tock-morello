@@ -1,0 +1,70 @@
+# Licensed under the Apache License, Version 2.0 or the MIT License.
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+# Copyright Tock Contributors 2026.
+
+# NOTE(morello): The Morello Rust fork is based on Rust 1.72, whose cargo only
+# honors the config `include` key with `-Z config-include`, and does not
+# support all of the options in the shared `boards/cargo/*.toml` files (e.g.
+# `trim-paths` or the `core/optimize_for_size` feature). The fork also does not
+# ship `rust-lld`. Therefore the relevant flags of `tock_flags.toml` are
+# duplicated here instead of being included, and the prebuilt `core` of the
+# Morello toolchain is used instead of `-Z build-std`.
+
+[build]
+rustc = "../../tools/morello-toolchain/rustc.sh"
+rustdoc = "../../tools/morello-toolchain/rustdoc.sh"
+target = "aarch64-unknown-none-purecap"
+# This board is its own cargo workspace (see `Cargo.toml`), but still shares
+# the target directory with the main Tock workspace, as `Makefile.common`
+# expects.
+target-dir = "../../target"
+rustflags = [
+  # Set a sentinel cfg flag so that we know this configuration file was included
+  # in the build. This is checked in build.rs.
+  "--cfg", "cfg_tock_buildflagssentinel",
+  # NOTE(morello): Select the code paths in the shared Tock crates which are
+  # specific to the Rust version of the Morello toolchain.
+  "--cfg", "morello_toolchain",
+  # Use the LLVM lld executable with the `-flavor gnu` flag.
+  "-C", "linker-flavor=ld.lld",
+  # Use static relocation model. See https://github.com/tock/tock/pull/2853
+  "-C", "relocation-model=static",
+  # lld by default uses a default page size to align program sections. Tock
+  # expects that program sections are set back-to-back. `-nmagic` instructs the
+  # linker to not page-align sections.
+  "-C", "link-arg=-nmagic",
+  # Identical Code Folding (ICF) set to all. See `tock_flags.toml`.
+  "-C", "link-arg=-icf=all",
+  # Enable link-time-optimization
+  "-C", "lto",
+  # Have rustc generate stack sizes for analyzing the size of stack frames.
+  "-Z", "emit-stack-sizes",
+  # NOTE(morello): The Tock crates use language and library features which are
+  # stable on the toolchain used by upstream Tock, but are still unstable on
+  # Rust 1.72. Enable these for all crates from here, instead of adding
+  # `#![feature(..)]` attributes to the shared crates.
+  "-Zcrate-attr=feature(const_mut_refs)",
+  "-Zcrate-attr=feature(inline_const)",
+  "-Zcrate-attr=feature(lint_reasons)",
+  "-Zcrate-attr=feature(panic_info_message)",
+  "-Zcrate-attr=feature(raw_ref_op)",
+  "-Zcrate-attr=feature(return_position_impl_trait_in_trait)",
+  "-Zcrate-attr=feature(strict_provenance)",
+  "-Zcrate-attr=feature(slice_ptr_len)",
+  "-Zcrate-attr=feature(slice_as_chunks)",
+  "-Zcrate-attr=feature(pointer_byte_offsets)",
+  "-Zcrate-attr=feature(ptr_from_ref)",
+  "-Zcrate-attr=feature(int_roundings)",
+  "-Zcrate-attr=feature(result_option_inspect)",
+  "-Zcrate-attr=feature(cell_update)",
+]
+rustdocflags = [
+  # Document internal code. This is helpful for understanding how the kernel
+  # works and developing within crates.
+  "--document-private-items"
+]
+
+[target.aarch64-unknown-none-purecap]
+# Use the Morello LLVM linker, the Morello Rust fork does not ship `rust-lld`.
+linker = "../../tools/morello-toolchain/ld.sh"
+runner = "./qemu.sh"

@@ -152,7 +152,7 @@ struct TockAttributesKernelVersion {
 /// formats (Mach-O, PE, ...) that reject a bare section name like this,
 /// yielding errors such as: `mach-o section specifier requires a segment and
 /// section separated by a comma`.
-#[cfg_attr(target_os = "none", unsafe(link_section = ".tock.attr.kernel_version"))]
+#[cfg_attr(target_os = "none", link_section = ".tock.attr.kernel_version")]
 #[used]
 static TOCK_ATTRIBUTES_KERNEL_VERSION: TockAttributesKernelVersion = TockAttributesKernelVersion {
     major: KERNEL_MAJOR_VERSION,

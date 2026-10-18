@@ -1,0 +1,11 @@
+# NOTE(morello): This crate is excluded from the main Tock workspace and is a
+# member of the `qemu_morello_virt` board workspace instead, as it is only
+# built with the Morello Rust toolchain.
+[package]
+name = "aarch64-purecap"
+version.workspace = true
+edition.workspace = true
+workspace = "../../boards/qemu_morello_virt"
+
+[dependencies]
+kernel = { path = "../../kernel" }

@@ -351,16 +351,39 @@ pub fn panic_banner<W: Write>(writer: &mut W, panic_info: &PanicInfo) {
     // implementation. The `Display` implementation inserts bare LFs
     // between the location line and the message body, rather than a
     // CRLF.
-    if let Some(location) = panic_info.location() {
-        let _ = writer.write_fmt(format_args!(
-            "\r\npanicked at {}:{}:{}:\r\n{}\r\n",
-            location.file(),
-            location.line(),
-            location.column(),
-            panic_info.message(),
-        ));
-    } else {
-        let _ = writer.write_fmt(format_args!("\r\n{}\r\n", panic_info.message()));
+    #[cfg(not(morello_toolchain))]
+    {
+        if let Some(location) = panic_info.location() {
+            let _ = writer.write_fmt(format_args!(
+                "\r\npanicked at {}:{}:{}:\r\n{}\r\n",
+                location.file(),
+                location.line(),
+                location.column(),
+                panic_info.message(),
+            ));
+        } else {
+            let _ = writer.write_fmt(format_args!("\r\n{}\r\n", panic_info.message()));
+        }
+    }
+
+    // NOTE(morello): On the Rust version of the Morello toolchain,
+    // `PanicInfo::message()` returns an `Option<&fmt::Arguments>`, which
+    // cannot be printed directly. The `morello_toolchain` cfg is set by the
+    // cargo configuration of the boards built with that toolchain.
+    #[cfg(morello_toolchain)]
+    {
+        if let Some(location) = panic_info.location() {
+            let _ = writer.write_fmt(format_args!(
+                "\r\npanicked at {}:{}:{}:",
+                location.file(),
+                location.line(),
+                location.column(),
+            ));
+        }
+        if let Some(message) = panic_info.message() {
+            let _ = writer.write_fmt(format_args!("\r\n{}", message));
+        }
+        let _ = writer.write_str("\r\n");
     }
 
     // Print version of the kernel

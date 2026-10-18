@@ -6,7 +6,7 @@
 name = "capsules-system"
 version.workspace = true
 authors.workspace = true
-edition = "2024"
+edition = "2021"
 
 [dependencies]
 kernel = { path = "../../kernel" }

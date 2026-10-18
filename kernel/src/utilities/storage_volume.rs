@@ -30,9 +30,9 @@ macro_rules! storage_volume {
         // object formats (Mach-O, PE, ...) that reject a bare section name
         // like this, yielding errors such as: `mach-o section specifier
         // requires a segment and section separated by a comma`.
-        #[cfg_attr(target_os = "none", unsafe(link_section = ".storage"))]
+        #[cfg_attr(target_os = "none", link_section = ".storage")]
         #[used]
-        #[unsafe(no_mangle)]
+        #[no_mangle]
         pub static $N: [u8; $kB * 1024] = [0x00; $kB * 1024];
     };
 }

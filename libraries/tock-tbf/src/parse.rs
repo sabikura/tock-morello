@@ -181,10 +181,12 @@ pub fn parse_tbf_header(
                         }
                         types::TbfHeaderTypes::TbfHeaderWriteableFlashRegions => {
                             // Length must be a multiple of the size of a region definition.
+                            //
+                            // NOTE(morello): `is_multiple_of()` does not exist
+                            // on the Rust version of the Morello toolchain.
                             if (tlv_header.length as usize)
-                                .is_multiple_of(mem::size_of::<
-                                    types::TbfHeaderV2WriteableFlashRegion,
-                                >())
+                                % mem::size_of::<types::TbfHeaderV2WriteableFlashRegion>()
+                                == 0
                             {
                                 // Capture a slice with just the wfr information.
                                 let wfr_slice = remaining

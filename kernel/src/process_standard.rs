@@ -619,11 +619,15 @@ impl<C: Chip, D: 'static + ProcessStandardDebug> Process for ProcessStandard<'_,
                     // In case the process is yielding for another upcall, don't
                     // clear the flag; this would re-introduce the race
                     // condition of #5195.
-                    if let State::YieldedFor(yielded_upcall_id) = self.state.get()
-                        && let Some(this_upcall_id) = opt_this_upcall_id
-                        && yielded_upcall_id == this_upcall_id
+                    //
+                    // NOTE(morello): This was changed due to the "2021" edition requirement by the
+                    // current toolchain. Logic should be the same with the "2024" syntax version.
+                    if let (State::YieldedFor(yielded_upcall_id), Some(this_upcall_id)) =
+                        (self.state.get(), opt_this_upcall_id)
                     {
-                        self.is_yield_wait_for_ready.set(true);
+                        if yielded_upcall_id == this_upcall_id {
+                            self.is_yield_wait_for_ready.set(true);
+                        }
                     }
 
                     // The task has been successfully enqueued.

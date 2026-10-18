@@ -239,7 +239,7 @@ impl<'a, T: immutable_from_into_bytes::ImmutableFromIntoBytes> DmaSliceMut<'a, T
     #[must_use]
     pub unsafe fn new(slice: &mut [T], fence: impl DmaFence) -> DmaSliceMut<'_, T> {
         let dma_slice_mut = DmaSliceMut {
-            slice_ptr: NonNull::from_mut(slice),
+            slice_ptr: NonNull::from(slice),
             _lt: PhantomData,
         };
 
@@ -556,7 +556,7 @@ impl<'a, T: immutable_from_into_bytes::ImmutableFromIntoBytes> DmaSubSliceMut<'a
 
         // Store only a fat raw pointer to the inner slice:
         let dma_sub_slice_mut = DmaSubSliceMut {
-            internal_slice_ptr: NonNull::from_mut(internal_slice_ptr),
+            internal_slice_ptr: NonNull::from(internal_slice_ptr),
             active_range,
             _lt: PhantomData,
         };

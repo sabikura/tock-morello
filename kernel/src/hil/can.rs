@@ -250,7 +250,9 @@ impl<T: Configure> StandardBitTiming for T {
         for prescaler in
             cmp::max(clock_rate / (ts * bitrate), 1)..Self::MAX_BIT_TIMINGS.baud_rate_prescaler
         {
-            if !clock_rate.is_multiple_of(prescaler * bitrate) {
+            // NOTE(morello): `is_multiple_of()` does not exist on the Rust
+            // version of the Morello toolchain.
+            if clock_rate % (prescaler * bitrate) != 0 {
                 continue;
             }
             ts = clock_rate / (prescaler * bitrate);

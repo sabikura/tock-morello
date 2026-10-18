@@ -1,0 +1,43 @@
+[package]
+name = "qemu_morello_virt"
+version.workspace = true
+edition.workspace = true
+build = "../build.rs"
+
+[dependencies]
+kernel = { path = "../../kernel" }
+aarch64-purecap = { path = "../../arch/aarch64-purecap" }
+qemu_morello_virt_chip = { path = "../../chips/qemu_morello_virt_chip" }
+
+# capsules-core = { path = "../../capsules/core" }
+# capsules-system = { path = "../../capsules/system" }
+
+[build-dependencies]
+tock_build_scripts = { path = "../build_scripts" }
+
+# NOTE(morello): This board is built with the Morello Rust fork, which is based
+# on Rust 1.72. Its cargo cannot parse the manifests of most crates in the main
+# Tock workspace (e.g. `edition = "2024"`), so this board is its own workspace
+# and is excluded from the main one. This way, only the crates this board
+# actually depends on need to be compatible with the old toolchain.
+[workspace]
+members = ["../../arch/aarch64-purecap", "../../chips/qemu_morello_virt_chip"]
+
+[workspace.package]
+version = "0.1.0-dev"
+edition = "2021"
+
+# The profiles of a workspace are only taken from its root manifest, so these
+# are duplicated from the main Tock workspace.
+[profile.dev]
+panic = "abort"
+lto = true
+opt-level = "z"
+debug = true
+
+[profile.release]
+panic = "abort"
+lto = true
+opt-level = "z"
+debug = true
+codegen-units = 1

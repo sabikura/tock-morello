@@ -304,8 +304,8 @@ macro_rules! stack_size {
         /// object formats (Mach-O, PE, ...) that reject a bare section name
         /// like this, yielding errors such as: `mach-o section specifier
         /// requires a segment and section separated by a comma`.
-        #[cfg_attr(target_os = "none", unsafe(link_section = ".stack_buffer"))]
-        #[unsafe(no_mangle)]
+        #[cfg_attr(target_os = "none", link_section = ".stack_buffer")]
+        #[no_mangle]
         static mut STACK_MEMORY: [u8; $size] = [0; $size];
     }
 }

@@ -157,8 +157,8 @@ macro_rules! static_named_buf {
         // actually writing anything, as well as a flag to track if
         // this memory has been initialized yet.
         #[used]
-        #[unsafe(no_mangle)]
-        #[unsafe(export_name = $N)]
+        #[no_mangle]
+        #[export_name = $N]
         pub static mut BUF: (core::mem::MaybeUninit<$T>, bool) =
             (core::mem::MaybeUninit::uninit(), false);
 

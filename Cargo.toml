@@ -133,7 +133,7 @@ members = [
     "libraries/tock-cells",
     "libraries/tickv",
 ]
-exclude = ["tools/"]
+exclude = ["tools/", "arch/aarch64-purecap", "boards/qemu_morello_virt", "chips/qemu_morello_virt_chip"]
 resolver = "2"
 
 [workspace.package]
@@ -156,6 +156,12 @@ lto = true
 opt-level = "z"
 debug = true
 codegen-units = 1
+
+# NOTE(morello): The `morello_toolchain` cfg is set by the cargo configuration
+# of the boards built with the Morello Rust toolchain. Declare it here so that
+# other toolchains do not warn about an unexpected cfg.
+[workspace.lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(morello_toolchain)'] }
 
 # CLIPPY CONFIGURATION
 #
