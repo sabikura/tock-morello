@@ -10,3 +10,4 @@ workspace = "../../boards/qemu_morello_virt"
 [dependencies]
 kernel = { path = "../../kernel" }
 aarch64-purecap = { path = "../../arch/aarch64-purecap" }
+cheri = { git = "https://github.com/sabikura/cheri-rs.git" }
