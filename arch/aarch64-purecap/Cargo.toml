@@ -9,3 +9,8 @@ workspace = "../../boards/qemu_morello_virt"
 
 [dependencies]
 kernel = { path = "../../kernel" }
+
+[features]
+# The platform boots in A64 (e.g. the QEMU `virt` machine). The start code
+# first enables capability instructions and switches to C64.
+hybrid = []
