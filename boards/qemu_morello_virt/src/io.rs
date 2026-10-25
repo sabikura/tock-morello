@@ -4,13 +4,10 @@
 
 use core::panic::PanicInfo;
 
-use kernel::debug;
-use kernel::hil::uart;
-
 /// Panic handler.
 #[cfg(not(test))]
 #[panic_handler]
-pub unsafe fn panic_fmt(pi: &PanicInfo) -> ! {
+pub unsafe fn panic_fmt(_pi: &PanicInfo) -> ! {
     // debug::panic_print::<qemu_rv64_virt_chip::uart::UartPanicWriter, _, _>(
     //     qemu_rv64_virt_chip::uart::UartPanicWriterConfig {
     //         params: uart::Parameters {
@@ -25,11 +22,9 @@ pub unsafe fn panic_fmt(pi: &PanicInfo) -> ! {
     //     &rv64i::support::nop,
     //     crate::PANIC_RESOURCES.get(),
     // );
-    //
-    // // The system is no longer in a well-defined state. Use
-    // // semihosting commands to exit QEMU with a return code of 1.
-    // rv64i::semihost_command(0x18, 1, 0);
 
-    // To satisfy the ! return type constraints.
+    // The system is no longer in a well-defined state. Use
+    // semihosting commands to exit QEMU with a return code of 1.
+    // crate::qemu_exit(1)
     loop {}
 }

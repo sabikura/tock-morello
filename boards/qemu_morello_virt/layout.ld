@@ -1,29 +1,82 @@
 /**
- * QEMU emulated DRAM region. Tock is currently designed to be placed
- * at the start of DRAM, using the `-bios` option in qemu-system-riscv64.
+ * QEMU Morello `virt` machine DRAM region, which starts at 0x40000000 (128MB
+ * by default). Tock is loaded at the start of DRAM as an ELF, using the
+ * `-kernel` option of qemu-system-morello.
  *
  * We are using 4MB of RAM, which easily fits into the 128MB default
- * assignment of QEMU, and we can have compact VMs with `-m 4MB`
+ * assignment of QEMU.
  */
 
 MEMORY
 {
-  rom (rx)  : ORIGIN = 0x80000000, LENGTH = 0x100000
-  prog (rx) : ORIGIN = 0x80100000, LENGTH = 0x100000
-  ram (rwx) : ORIGIN = 0x80200000, LENGTH = 0x200000
+  rom (rx)  : ORIGIN = 0x40000000, LENGTH = 0x100000
+  prog (rx) : ORIGIN = 0x40100000, LENGTH = 0x100000
+  ram (rwx) : ORIGIN = 0x40200000, LENGTH = 0x200000
 }
 
 SECTIONS {
-    /* Export the start & end of SRAM and flash as symbols for setting
-     * up the ePMP. Flash includes rom, prog and flash storage, such
-     * that we can use a single NAPOT region. The .text section will
-     * be made executable by a separate PMP region.
-     */
+    /* Export the start & end of SRAM and flash as symbols. */
     _sflash = ORIGIN(rom);
     _eflash = ORIGIN(prog) + LENGTH(prog);
 
     _ssram  = ORIGIN(ram);
     _esram  = ORIGIN(ram) + LENGTH(ram);
+
+    /* Capability relocation table.
+     *
+     * Capabilities can only be derived, not created, so the linker emits a
+     * table describing the global capabilities, which the start code
+     * initializes from it (see arch/aarch64-purecap/src/cap_relocs.rs).
+     */
+    .cap_relocs :
+    {
+        _scap_relocs = .;
+        KEEP(*(__cap_relocs))
+        KEEP(*(.__cap_relocs))
+        _ecap_relocs = .;
+    } > rom
+
+    /* Capability slots for globals (the GOT and relocated read-only data).
+     *
+     * Code reads these PC-relative, so they have to be inside the PCC region
+     * below. They are only written by the start code, through DDC, before PCC
+     * is restricted and DDC is nulled. `rom` is DRAM on QEMU.
+     *
+     * These are placed here, before the Tock linker script is included, so
+     * that `.data.rel.ro` is not matched by its `.data.*` pattern, which would
+     * put it into RAM.
+     */
+    .got :
+    {
+        *(.got .got.plt)
+    } > rom
+
+    .data.rel.ro :
+    {
+        *(.data.rel.ro .data.rel.ro.*)
+    } > rom
+
+    /* PCC region.
+     *
+     * The start code restricts PCC to [_spcc, _epcc), which covers everything
+     * placed in `rom` up to `_etext`: the sections above, .text and .rodata.
+     * `_etext` is aligned to PAGE_SIZE, so the bounds are representable.
+     */
+    _spcc = ORIGIN(rom);
+    _epcc = _etext;
 }
 
 INCLUDE tock_kernel_layout.ld
+
+/* NOTE: The Morello lld treats every `__*_start` symbol as a
+ * section start symbol and asserts if it does not sit at the start of its
+ * section. The Tock linker script defines the (unused, Rust has no
+ * constructors) init/fini array symbols in the middle of `.text`, so redefine
+ * them here as absolute values, which clears that flag.
+ */
+__preinit_array_start = 0;
+__preinit_array_end = 0;
+__init_array_start = 0;
+__init_array_end = 0;
+__fini_array_start = 0;
+__fini_array_end = 0;

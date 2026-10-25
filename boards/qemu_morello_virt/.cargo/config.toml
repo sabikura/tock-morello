@@ -19,8 +19,6 @@ target = "aarch64-unknown-none-purecap"
 # expects.
 target-dir = "../../target"
 rustflags = [
-  # Set a sentinel cfg flag so that we know this configuration file was included
-  # in the build. This is checked in build.rs.
   "--cfg", "cfg_tock_buildflagssentinel",
   # NOTE(morello): Select the code paths in the shared Tock crates which are
   # specific to the Rust version of the Morello toolchain.
@@ -37,8 +35,10 @@ rustflags = [
   "-C", "link-arg=-icf=all",
   # Enable link-time-optimization
   "-C", "lto",
-  # Have rustc generate stack sizes for analyzing the size of stack frames.
-  "-Z", "emit-stack-sizes",
+  # NOTE(morello): Unlike `tock_flags.toml`, `-Z emit-stack-sizes` is not
+  # set. The Morello LLVM aborts with "Invalid generic fixup size!" when
+  # emitting the `.stack_sizes` section, as it writes the function addresses as
+  # 16 byte capabilities.
   # NOTE(morello): The Tock crates use language and library features which are
   # stable on the toolchain used by upstream Tock, but are still unstable on
   # Rust 1.72. Enable these for all crates from here, instead of adding
@@ -65,6 +65,4 @@ rustdocflags = [
 ]
 
 [target.aarch64-unknown-none-purecap]
-# Use the Morello LLVM linker, the Morello Rust fork does not ship `rust-lld`.
 linker = "../../tools/morello-toolchain/ld.sh"
-runner = "./qemu.sh"

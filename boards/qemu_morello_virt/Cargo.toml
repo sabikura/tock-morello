@@ -6,7 +6,8 @@ build = "../build.rs"
 
 [dependencies]
 kernel = { path = "../../kernel" }
-aarch64-purecap = { path = "../../arch/aarch64-purecap" }
+# The QEMU `virt` machine boots in A64, the start code has to switch to C64.
+aarch64-purecap = { path = "../../arch/aarch64-purecap", features = ["hybrid"] }
 qemu_morello_virt_chip = { path = "../../chips/qemu_morello_virt_chip" }
 
 # capsules-core = { path = "../../capsules/core" }
