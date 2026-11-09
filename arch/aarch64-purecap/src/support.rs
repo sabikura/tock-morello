@@ -1,5 +1,6 @@
 //! Support functions for the Aarch64 pure capability architecture.
 
+use cheri::{prelude::*, ptr::Perms};
 use core::arch::asm;
 
 // NOTE: Copied from cortex-m support
@@ -46,4 +47,25 @@ pub unsafe fn semihost_command(command: usize, param: usize) -> usize {
         in("x1") param,             // x1 holds the parameter
     );
     res
+}
+
+/// Null the current's EL DDC. This should be called by the board after setting up the drivers.
+pub unsafe fn null_ddc() {
+    asm!(
+        "isb",
+        "msr DDC, czr",
+        "isb",
+        options(nomem, nostack, preserves_flags)
+    );
+}
+
+/// Derive a reference to the registers block of type `T` at `address` from the DDC
+pub unsafe fn mmio<T>(address: usize) -> &'static T {
+    let ddc = cheri::ptr::default_data_mut::<u8>();
+    let registers = ddc
+        .wrapping_add(address.wrapping_sub(ddc as usize))
+        .cast::<T>()
+        .with_bounds(core::mem::size_of::<T>())
+        .with_perms_clear_except(Perms::LOAD | Perms::STORE | Perms::GLOBAL);
+    &*registers
 }

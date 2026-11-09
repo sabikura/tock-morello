@@ -152,12 +152,10 @@ pub unsafe extern "C" fn initialize_ram_jump_to_main() {
     scvalue c1, c0, x4
     msr CVBAR_EL1, c1
 
-    // Null DDC. From here on, memory is only reachable through capabilities.
-    msr DDC, czr
-    isb
-
     // Enter main through a sealed entry to the restricted code capability.
     // PCC bounds and permissions stay reduced from here on.
+    // The board should call `support::null_ddc()` when it is done with
+    // setting up the drivers.
     ldr x4, =main
     scvalue c0, c0, x4
     seal c0, c0, rb
