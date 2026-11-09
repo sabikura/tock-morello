@@ -1,0 +1,11 @@
+[package]
+name = "primecell"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+
+[dependencies]
+kernel = { path = "../../kernel" }
+
+[lints]
+workspace = true

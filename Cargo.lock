@@ -1225,6 +1225,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "primecell"
+version = "0.2.4-dev"
+dependencies = [
+ "kernel",
+]
+
+[[package]]
 name = "primeorder"
 version = "0.13.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"

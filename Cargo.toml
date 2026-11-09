@@ -104,6 +104,7 @@ members = [
     "chips/nrf5x",
     "chips/nrf5x-unsafe",
     "chips/pci-x86",
+    "chips/primecell",
     "chips/x86_q35",
     "chips/qemu_rv32_virt_chip",
     "chips/qemu_virt_chip",
