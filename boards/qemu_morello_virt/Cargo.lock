@@ -6,7 +6,25 @@ version = 3
 name = "aarch64-purecap"
 version = "0.1.0-dev"
 dependencies = [
+ "cheri",
  "kernel",
+]
+
+[[package]]
+name = "capsules-core"
+version = "0.2.4-dev"
+dependencies = [
+ "enum_primitive",
+ "kernel",
+ "tickv",
+]
+
+[[package]]
+name = "capsules-system"
+version = "0.2.4-dev"
+dependencies = [
+ "kernel",
+ "tock-tbf",
 ]
 
 [[package]]
@@ -28,12 +46,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "components"
+version = "0.1.0-dev"
+dependencies = [
+ "capsules-core",
+ "capsules-system",
+ "kernel",
+]
+
+[[package]]
+name = "enum_primitive"
+version = "0.1.0"
+
+[[package]]
 name = "kernel"
 version = "0.2.4-dev"
 dependencies = [
  "tock-cells",
  "tock-registers",
  "tock-tbf",
+]
+
+[[package]]
+name = "primecell"
+version = "0.2.4-dev"
+dependencies = [
+ "kernel",
 ]
 
 [[package]]
@@ -50,6 +88,9 @@ name = "qemu_morello_virt"
 version = "0.1.0-dev"
 dependencies = [
  "aarch64-purecap",
+ "capsules-core",
+ "capsules-system",
+ "components",
  "kernel",
  "qemu_morello_virt_chip",
  "tock_build_scripts",
@@ -62,6 +103,7 @@ dependencies = [
  "aarch64-purecap",
  "cheri",
  "kernel",
+ "primecell",
 ]
 
 [[package]]
@@ -83,6 +125,10 @@ dependencies = [
  "quote",
  "unicode-ident",
 ]
+
+[[package]]
+name = "tickv"
+version = "2.0.0"
 
 [[package]]
 name = "tock-cells"

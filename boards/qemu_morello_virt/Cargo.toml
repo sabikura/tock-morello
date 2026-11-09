@@ -10,8 +10,9 @@ kernel = { path = "../../kernel" }
 aarch64-purecap = { path = "../../arch/aarch64-purecap", features = ["hybrid"] }
 qemu_morello_virt_chip = { path = "../../chips/qemu_morello_virt_chip" }
 
-# capsules-core = { path = "../../capsules/core" }
-# capsules-system = { path = "../../capsules/system" }
+capsules-core = { path = "../../capsules/core" }
+capsules-system = { path = "../../capsules/system" }
+components = { path = "components" }
 
 [build-dependencies]
 tock_build_scripts = { path = "../build_scripts" }
@@ -22,7 +23,7 @@ tock_build_scripts = { path = "../build_scripts" }
 # and is excluded from the main one. This way, only the crates this board
 # actually depends on need to be compatible with the old toolchain.
 [workspace]
-members = ["../../arch/aarch64-purecap", "../../chips/qemu_morello_virt_chip"]
+members = ["../../arch/aarch64-purecap", "../../chips/qemu_morello_virt_chip", "components"]
 
 [workspace.package]
 version = "0.1.0-dev"

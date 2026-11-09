@@ -1,0 +1,9 @@
+[package]
+name = "components"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+kernel = { path = "../../../kernel" }
+capsules-core = { path = "../../../capsules/core" }
+capsules-system = { path = "../../../capsules/system" }
