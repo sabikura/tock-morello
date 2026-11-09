@@ -6,6 +6,25 @@ Currently forked from upstream commit
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
+## 2026-11-08
+
+### Added
+
+- *(chips/primecell)*: crate for Arm PrimeCell peripherals
+- *(chips/primecell)*: PL011 register definitions copied from the `pl011-uart` crate
+- *(arch/aarch64-purecap)*: `thread_id::ThreadIdProvider` reports thread 0 for now
+- *(arch/aarch64-purecap)*: `support::null_ddc()` for the board to call once device capabilities are created
+- *(chips/qemu_morello_virt_chip)*: `uart.rs` implements the UART HIL
+- *(boards/qemu_morello_virt)*: add `components` stub crate in the board workspace
+- *(boards/qemu_morello_virt)*: set up the debug writer
+- `rust-analyzer.toml` at the repo root passes `--locked` to cargo
+
+### Changed
+
+- *(arch/aarch64-purecap)*: start code does not null DDC
+- *(arch/aarch64-purecap)*: function capabilities from the relocation table get rounded bounds
+- *(boards/qemu_morello_virt)*: `layout.ld` keeps `.rodata` out of the executable `.text` section (the morello lld would have sealed the constants as functions)
+
 ## 2026-10-25
 
 ### Added
