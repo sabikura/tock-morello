@@ -22,12 +22,7 @@ SECTIONS {
     _ssram  = ORIGIN(ram);
     _esram  = ORIGIN(ram) + LENGTH(ram);
 
-    /* Capability relocation table.
-     *
-     * Capabilities can only be derived, not created, so the linker emits a
-     * table describing the global capabilities, which the start code
-     * initializes from it (see arch/aarch64-purecap/src/cap_relocs.rs).
-     */
+    /* Capability relocation table */
     .cap_relocs :
     {
         _scap_relocs = .;
@@ -39,12 +34,7 @@ SECTIONS {
     /* Capability slots for globals (the GOT and relocated read-only data).
      *
      * Code reads these PC-relative, so they have to be inside the PCC region
-     * below. They are only written by the start code, through DDC, before PCC
-     * is restricted and DDC is nulled. `rom` is DRAM on QEMU.
-     *
-     * These are placed here, before the Tock linker script is included, so
-     * that `.data.rel.ro` is not matched by its `.data.*` pattern, which would
-     * put it into RAM.
+     * below
      */
     .got :
     {
@@ -56,10 +46,21 @@ SECTIONS {
         *(.data.rel.ro .data.rel.ro.*)
     } > rom
 
+    /* Read-only data gets its own section instead of the Tock default of
+     * living inside .text.
+     * The Morello linker puts the types of capability relocation
+     * into the table by its section, and treats everything in an executable
+     * section as a function
+     */
+    .rodata :
+    {
+        *(.rodata .rodata.* .gnu.linkonce.r.*)
+    } > rom
+
     /* PCC region.
      *
      * The start code restricts PCC to [_spcc, _epcc), which covers everything
-     * placed in `rom` up to `_etext`: the sections above, .text and .rodata.
+     * placed in `rom` up to `_etext`: the sections above and .text.
      * `_etext` is aligned to PAGE_SIZE, so the bounds are representable.
      */
     _spcc = ORIGIN(rom);
