@@ -1,6 +1,6 @@
 //! Relocate global capabilities
 //!
-//! Since capabilities can't be created, only derived, global capabilities have
+//! Since capabilities can only be derived, global capabilities have
 //! to be created at startup from a special capability relocation table.
 
 // NOTE: Code was copied from [aarch64-purecap](https://github.com/sabikura/aarch64-purecap)
@@ -35,10 +35,8 @@ const FUNCTION_RELOC_FLAG: usize = 1 << (usize::BITS - 1);
 
 /// Initialise the global capabilities based on the compiler-generated capability relocation table.
 ///
-/// The table is marked by the `_scap_relocs` and `_ecap_relocs` symbols
-/// defined in the linker script. Function capabilities are derived from
-/// PCC and bounded to the code region `[_spcc, _epcc)`; data capabilities are
-/// derived from DDC.
+/// The table is delimited by the `_scap_relocs` and `_ecap_relocs` symbols
+/// defined in the linkerscript
 pub(crate) unsafe extern "C" fn init_cap_relocs() {
     let start_address = cap_relocs_start();
     let end_address = cap_relocs_end();
@@ -78,17 +76,15 @@ pub(crate) unsafe extern "C" fn init_cap_relocs() {
 
         let perms = entry.perms;
         let ptr = if (perms & FUNCTION_RELOC_FLAG) == FUNCTION_RELOC_FLAG {
-            // Derive the capability from PCC, bounded to the code region.
-            // Called functions run with PCC set to this capability, and they
-            // reach globals through the .got, so the bounds cover
-            // [_spcc, _epcc) and not only the function.
+            // Derive the capability from PCC
             let code_start = code_start();
             let code_len = code_end() - code_start;
             let mut ptr: *const u8;
+            // `scbnds` rounds the bounds outwards
             unsafe {
                 core::arch::asm!(
                     "cvtp {cap:x}, {base}",
-                    "scbndse {cap:x}, {cap:x}, {len}",
+                    "scbnds {cap:x}, {cap:x}, {len}",
                     "scvalue {cap:x}, {cap:x}, {addr}",
                     cap = out(reg) ptr,
                     base = in(reg) code_start,
