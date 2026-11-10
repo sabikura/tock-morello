@@ -12,4 +12,6 @@ pub mod exceptions;
 pub mod start;
 #[cfg(all(target_arch = "aarch64", target_abi = "purecap"))]
 pub mod support;
+#[cfg(all(target_arch = "aarch64", target_abi = "purecap"))]
+pub mod syscall;
 pub mod thread_id;
